@@ -92,7 +92,7 @@ st.subheader("📜 Conversation")
 
 for chat in reversed(st.session_state.chat_history):
     st.markdown(f"**🧑 You:** {chat['question']}")
-    st.markdown(f"**🤖 Assistant:** {chat['answer']}")
+    st.markdown(f"**🤖 Assistant:** {chat['answer'][:800]}")
 
     if chat.get("sources"):
         with st.expander("📚 Sources used"):

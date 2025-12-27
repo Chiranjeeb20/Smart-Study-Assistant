@@ -28,8 +28,8 @@ def create_or_load_vector_store(documents=None):
     # ✅ Case 3: Create new FAISS from documents
     print("🆕 Creating new FAISS index...")
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50
+        chunk_size=900,
+        chunk_overlap=150
     )
 
     chunks = splitter.split_documents(documents)

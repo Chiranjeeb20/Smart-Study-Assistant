@@ -20,9 +20,14 @@ def get_qa_chain(vector_db):
     prompt = PromptTemplate(
         input_variables=["context", "question"],
         template="""
-You are a smart study assistant.
-Answer the question ONLY using the given context.
-If the answer is not present in the context, say "I don't know based on the provided document."
+You are an academic study assistant.
+
+Rules:
+- Answer ONLY using the context below.
+- Be concise and structured.
+- Use bullet points if helpful.
+- If the answer is not found in the context, say:
+  "The document does not provide this information."
 
 Context:
 {context}
@@ -30,15 +35,16 @@ Context:
 Question:
 {question}
 
-Answer (clear and student-friendly):
+Answer:
 """
-    )
+)
 
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
-        retriever=vector_db.as_retriever(search_kwargs={"k": 4}),
-        chain_type_kwargs={"prompt": prompt},
-        return_source_documents=True  # 🔥 IMPORTANT
+        retriever = vector_db.as_retriever(
+            search_type="similarity",
+            search_kwargs={"k": 5}  # was 3–4 earlier
+        )
     )
 
     return qa_chain

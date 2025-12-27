@@ -47,22 +47,33 @@ async def upload_pdf(file: UploadFile = File(...)):
 
 @app.get("/ask")
 async def ask_question(query: str):
+    global VECTOR_DB
+
     if VECTOR_DB is None:
-        return {"error": "No documents available. Upload PDFs first."}
+        return {
+            "error": "No documents loaded yet. Please upload a PDF first."
+        }
 
-    qa_chain = get_qa_chain(VECTOR_DB)
-    result = qa_chain(query)
+    try:
+        qa_chain = get_qa_chain(VECTOR_DB)
+        result = qa_chain(query)
 
-    sources = []
-    for doc in result["source_documents"]:
-        sources.append({
-            "source": doc.metadata.get("source", "Unknown"),
-            "page": doc.metadata.get("page", "N/A"),
-            "content": doc.page_content[:300]  # short snippet
-        })
+        sources = []
+        for doc in result.get("source_documents", []):
+            sources.append({
+                "source": doc.metadata.get("source", "Unknown"),
+                "page": doc.metadata.get("page", "N/A"),
+                "content": doc.page_content[:300]
+            })
 
-    return {
-        "question": query,
-        "answer": result["result"],
-        "sources": sources
-    }
+        return {
+            "question": query,
+            "answer": result.get("result", ""),
+            "sources": sources
+        }
+
+    except Exception as e:
+        return {
+            "error": "Failed to generate answer",
+            "details": str(e)
+        }
