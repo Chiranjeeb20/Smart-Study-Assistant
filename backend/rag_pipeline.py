@@ -1,12 +1,7 @@
 from transformers import pipeline
 from langchain_community.llms import HuggingFacePipeline
-from langchain.chains import RetrievalQA
-
-from transformers import pipeline
-from langchain_community.llms import HuggingFacePipeline
-from langchain.chains import RetrievalQA
+from langchain.chains.retrieval_qa.base import RetrievalQA
 from langchain.prompts import PromptTemplate
-
 
 def get_qa_chain(vector_db):
     hf_pipeline = pipeline(
