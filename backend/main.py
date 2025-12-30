@@ -55,8 +55,8 @@ async def ask_question(query: str):
         }
 
     try:
-        qa_chain = get_qa_chain(VECTOR_DB)
-        result = qa_chain(query)
+        qa_chain = get_qa_chain(VECTOR_DB, llm)
+        result = qa_chain.invoke(query)
 
         sources = []
         for doc in result.get("source_documents", []):

@@ -1,28 +1,19 @@
 from transformers import pipeline
 from langchain_community.llms import HuggingFacePipeline
-from langchain.chains.retrieval_qa.base import RetrievalQA
+from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
 from langchain.prompts import PromptTemplate
 
-def get_qa_chain(vector_db):
-    hf_pipeline = pipeline(
-        "text-generation",
-        model="google/flan-t5-base",
-        max_new_tokens=300
-    )
-
-    llm = HuggingFacePipeline(pipeline=hf_pipeline)
+def get_qa_chain(vector_db, llm):
+    retriever = vector_db.as_retriever(search_kwargs={"k": 3})
 
     prompt = PromptTemplate(
         input_variables=["context", "question"],
         template="""
-You are an academic study assistant.
-
-Rules:
-- Answer ONLY using the context below.
-- Be concise and structured.
-- Use bullet points if helpful.
-- If the answer is not found in the context, say:
-  "The document does not provide this information."
+You are a helpful study assistant.
+Use the context below to answer the question.
+If the answer is not in the context, say "I don't know".
 
 Context:
 {context}
@@ -32,14 +23,16 @@ Question:
 
 Answer:
 """
-)
-
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        retriever = vector_db.as_retriever(
-            search_type="similarity",
-            search_kwargs={"k": 5}  # was 3–4 earlier
-        )
     )
 
-    return qa_chain
+    chain = (
+        {
+            "context": retriever,
+            "question": RunnablePassthrough()
+        }
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+
+    return chain
