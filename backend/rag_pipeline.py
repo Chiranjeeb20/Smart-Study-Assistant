@@ -3,7 +3,17 @@ from langchain_community.llms import HuggingFacePipeline
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain.prompts import PromptTemplate
+
+def get_llm():
+    hf_pipeline = pipeline(
+        "text2text-generation",
+        model="google/flan-t5-base",
+        max_length=512,
+        temperature=0
+    )
+
+    llm = HuggingFacePipeline(pipeline=hf_pipeline)
+    return llm
 
 def get_qa_chain(vector_db, llm):
     retriever = vector_db.as_retriever(search_kwargs={"k": 3})

@@ -4,7 +4,7 @@ import os
 
 from backend.pdf_loader import load_pdf
 from backend.vector_store import create_or_load_vector_store
-from backend.rag_pipeline import get_qa_chain
+from backend.rag_pipeline import get_qa_chain, get_llm
 
 app = FastAPI(title="Smart Study Assistant (RAG)")
 
@@ -55,6 +55,7 @@ async def ask_question(query: str):
         }
 
     try:
+        llm = get_llm()
         qa_chain = get_qa_chain(VECTOR_DB, llm)
         result = qa_chain.invoke(query)
 
